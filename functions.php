@@ -22,27 +22,42 @@ function get_grabbing($request) {
     return $grabbing;
 }
 
-//function get_comment($comment_id) {}
-
-function test() {
-    return get_grabbing(666);
+function del_comment($comment_id) {
+    global $wpdb;
+    $query = $wpdb->prepare(
+        "DELETE
+        FROM inku_kaehmy_comment
+        WHERE ID=%d;",
+        $comment_id
+    );
+    $wpdb->query($query);
 }
 
+function delete_grabbing($grabbing_ID) {
+    global $wpdb;
+    $query = $wpdb->prepare(
+        "DELETE
+        FROM inku_kaehmy_grabbing
+        WHERE ID=%d;",
+        $grabbing_ID
+    );
+    $wpdb->query($query);
+}
 
 function get_all_tags() {
     global $wpdb;
-
     $query = "SELECT * FROM inku_kaehmy_tag;";
-
     $res = $wpdb->get_results($query, ARRAY_A);
-
     if($res){
         return $res;
     }
     else{
         return http_response_code(404);
     }
+}
 
+function test() {
+    return get_all_tags();
 }
 
 function get_grabbing_comments($request){
