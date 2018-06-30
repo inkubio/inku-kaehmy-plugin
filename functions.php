@@ -8,8 +8,9 @@ function get_all_grabbings() {
     return $grabbings;
 }
 
-function get_grabbing($grabbing_ID) {
+function get_grabbing($request) {
     // Param ID returns grabbing with given ID
+    $grabbing_ID = (int)$request['id'];
     global $wpdb;
     $query = $wpdb->prepare(
         "SELECT * 
@@ -39,9 +40,30 @@ function get_all_tags() {
         return $res;
     }
     else{
-        return http_response_code(204);
+        return http_response_code(404);
     }
 
+}
+
+function get_grabbing_comments($request){
+    global $wpdb;
+
+    $grabbing_ID = (int)$request['id'];
+
+    $query = $wpdb->prepare(
+        "SELECT * FROM inku_kaehmy_comment WHERE comment_ID IN 
+        (SELECT comment_ID FROM inku_kaehmy_has_comment WHERE parent_grabbing_ID == %d)
+        ", $grabbing_ID);
+
+
+    $res = $wpdb->get_results($query, ARRAY_A);
+
+    if($res){
+        return $res;
+    }
+    else{
+        return http_response_code(404);
+    }
 }
 
 ?>

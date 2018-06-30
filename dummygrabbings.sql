@@ -1,3 +1,6 @@
+-- run with from cmd
+-- mysql -u wordpressuser -p wordpress < dummygrabbings.sql
+
 INSERT INTO inku_kaehmy_grabbing
 VALUES (5000,100,1,'Me is good at cooking (read: drinking) so i want to be the hostess','My liver has had an easy life thus far.', '18-10-27 10:30:09 PM', 'Syksy 2018');
 
