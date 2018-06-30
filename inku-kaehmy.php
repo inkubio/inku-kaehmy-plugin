@@ -19,6 +19,7 @@ class Inku_Kaehmy_Plugin {
 
   // Add action to get tags from db.
   public function register_routes() {
+    /*GET methods*/ 
     register_rest_route('inku-kaehmy/v1', '/tags', 
       array(
         'methods' => 'GET',
@@ -49,6 +50,25 @@ class Inku_Kaehmy_Plugin {
       )
     );
 
+
+    /*DELETE methods */
+    register_rest_route('inku-kaehmy/v1', '/comment/(?P<id>\d+)', 
+    array(
+      'methods' => 'DELETE',
+      'callback' => 'delete_comment',
+      'args' => array('id'),
+      )
+    );
+
+    register_rest_route('inku-kaehmy/v1', '/grabbing/(?P<id>\d+)', 
+    array(
+      'methods' => 'DELETE',
+      'callback' => 'delete_grabbing',
+      'args' => array('id'),
+      )
+    );
+
+  
   }
 
   /*
