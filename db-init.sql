@@ -24,15 +24,14 @@ CREATE TABLE inku_kaehmy_comment (
 
 CREATE TABLE inku_kaehmy_has_comment (
     comment_ID INT NOT NULL,
-    parent_grabbing_ID INT,
+    parent_grabbing_ID INT NOT NULL,
     parent_comment_ID INT
 );
 
 CREATE TABLE inku_kaehmy_tag (
-    ID INT NOT NULL,
+    ID INT PRIMARY KEY,
     tag_name_fi VARCHAR(100) NOT NULL,
-    tag_name_en VARCHAR(100),
-    PRIMARY KEY (ID)
+    tag_name_en VARCHAR(100)
 );
 
 CREATE TABLE inku_kaehmy_is_tagged (
