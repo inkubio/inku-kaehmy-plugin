@@ -33,6 +33,13 @@ class Inku_Kaehmy_Plugin {
       )
     );
 
+    register_rest_route('inku-kaehmy/v1', '/grabbing/(?P<id>\d)', 
+    array(
+      'methods' => 'GET',
+      'callback' => 'get_grabbing',
+      )
+    );
+
   }
 
   /*
