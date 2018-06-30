@@ -24,7 +24,7 @@ function get_grabbing($grabbing_ID) {
 function del_comment($comment_id) {
     global $wpdb;
     $query = $wpdb->prepare(
-        "DELETE *
+        "DELETE
         FROM inku_kaehmy_comment
         WHERE ID=%d;",
         $comment_id
@@ -35,7 +35,7 @@ function del_comment($comment_id) {
 function delete_grabbing($grabbing_ID) {
     global $wpdb;
     $query = $wpdb->prepare(
-        "DELETE *
+        "DELETE
         FROM inku_kaehmy_grabbing
         WHERE ID=%d;",
         $grabbing_ID
@@ -44,25 +44,8 @@ function delete_grabbing($grabbing_ID) {
 }
 
 function test() {
-    delete_grabbing(2444);
+    delete_grabbing(3234);
     return get_all_grabbings();
-}
-
-
-function get_all_tags() {
-    global $wpdb;
-
-    $query = "SELECT * FROM inku_kaehmy_tag;";
-
-    $res = $wpdb->get_results($query, ARRAY_A);
-
-    if($res){
-        return $res;
-    }
-    else{
-        return http_response_code(204);
-    }
-
 }
 
 
