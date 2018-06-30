@@ -24,7 +24,7 @@ CREATE TABLE inku_kaehmy_comment (
 
 CREATE TABLE inku_kaehmy_has_comment (
     comment_ID INT NOT NULL,
-    parent_grabbing_ID INT,
+    parent_grabbing_ID INT NOT NULL,
     parent_comment_ID INT
 );
 
