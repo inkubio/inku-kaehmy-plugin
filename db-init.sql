@@ -5,21 +5,23 @@ DROP TABLE IF EXISTS inku_kaehmy_grabbing;
 DROP TABLE IF EXISTS inku_kaehmy_comment;
 
 CREATE TABLE inku_kaehmy_grabbing (
-    ID INT PRIMARY KEY,
+    ID INT NOT NULL AUTO_INCREMENT,
     userID INT NOT NULL,
     is_hallitus TINYINT NOT NULL,
     grabbing_text VARCHAR(65000) NOT NULL,
     grabbing_title VARCHAR(100) NOT NULL,
     time_stamp DATETIME NOT NULL,
-    grabbing_batch VARCHAR(100)
+    grabbing_batch VARCHAR(100),
+    PRIMARY KEY (ID)
 );
 
 CREATE TABLE inku_kaehmy_comment (
-    ID INT PRIMARY KEY,
+    ID INT NOT NULL AUTO_INCREMENT,
     userID INT NOT NULL,
     comment_text VARCHAR(65000) NOT NULL,
     time_stamp DATETIME NOT NULL,
-    depth INT NOT NULL
+    depth INT NOT NULL,
+    PRIMARY KEY (ID)
 );
 
 CREATE TABLE inku_kaehmy_has_comment (
@@ -29,7 +31,7 @@ CREATE TABLE inku_kaehmy_has_comment (
 );
 
 CREATE TABLE inku_kaehmy_tag (
-    ID INT NOT NULL,
+    ID INT NOT NULL AUTO_INCREMENT,
     tag_name_fi VARCHAR(100) NOT NULL,
     tag_name_en VARCHAR(100),
     PRIMARY KEY (ID)
