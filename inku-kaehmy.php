@@ -9,14 +9,30 @@
  * Domain Path:				/languages
  */
 
+require_once('functions.php');
+
 class Inku_Kaehmy_Plugin {
   public function __construct() {
     add_action('admin_menu', array($this, 'register_admin_menu'));
-    register_activation_hook(__FILE__, '__init');
+    add_action('rest_api_init', array($this, 'register_routes'));
   }
 
-  public function __init() {
-    add_action('admin_menu', array($this, 'register_admin_menu'));
+  // Add action to get tags from db.
+  public function register_routes() {
+    register_rest_route('inku-kaehmy/v1', '/tags', 
+      array(
+        'methods' => 'GET',
+        'callback' => 'get_all_tags',
+      )
+    );
+    
+    register_rest_route('inku-kaehmy/v1', '/grabbings', 
+    array(
+      'methods' => 'GET',
+      'callback' => 'get_all_grabbings',
+      )
+    );
+
   }
 
   /*
