@@ -74,10 +74,6 @@ function get_all_tags() {
     }
 }
 
-function test() {
-    return get_all_tags();
-}
-
 function get_grabbing_comments($request){
     global $wpdb;
 
@@ -97,6 +93,10 @@ function get_grabbing_comments($request){
     else{
         return http_response_code(404);
     }
+}
+
+function test() {
+    return get_all_tags();
 }
 
 ?>
