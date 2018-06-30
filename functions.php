@@ -21,10 +21,31 @@ function get_grabbing($grabbing_ID) {
     return $grabbing;
 }
 
-//function get_comment($comment_id) {}
+function del_comment($comment_id) {
+    global $wpdb;
+    $query = $wpdb->prepare(
+        "DELETE *
+        FROM inku_kaehmy_comment
+        WHERE ID=%d;",
+        $comment_id
+    );
+    $wpdb->query($query);
+}
+
+function delete_grabbing($grabbing_ID) {
+    global $wpdb;
+    $query = $wpdb->prepare(
+        "DELETE *
+        FROM inku_kaehmy_grabbing
+        WHERE ID=%d;",
+        $grabbing_ID
+    );
+    $wpdb->query($query);
+}
 
 function test() {
-    return get_grabbing(666);
+    delete_grabbing(2444);
+    return get_all_grabbings();
 }
 
 ?>
