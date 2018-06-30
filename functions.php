@@ -43,26 +43,20 @@ function delete_grabbing($grabbing_ID) {
     $wpdb->query($query);
 }
 
-function test() {
-    delete_grabbing(3234);
-    return get_all_grabbings();
-}
-
-
 function get_all_tags() {
     global $wpdb;
-
     $query = "SELECT * FROM inku_kaehmy_tag;";
-
     $res = $wpdb->get_results($query, ARRAY_A);
-
     if($res){
         return $res;
     }
     else{
         return http_response_code(204);
     }
+}
 
+function test() {
+    return get_all_tags();
 }
 
 ?>
