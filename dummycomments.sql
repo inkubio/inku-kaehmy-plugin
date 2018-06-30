@@ -10,6 +10,11 @@ VALUES (5059,103,'What is one thing you would like to improve in your life?','18
 INSERT INTO inku_kaehmy_comment
 VALUES (5055,107,'When life gives you lemons what do you do with them?','18-10-10 06:31:44 PM', 1);
 
+INSERT INTO inku_kaehmy_has_comment
+VALUES (5050,5000,NULL);
 
+INSERT INTO inku_kaehmy_has_comment
+VALUES (5059,2444,NULL);
 
-
+INSERT INTO inku_kaehmy_has_comment
+VALUES (5050,NULL,5059);
