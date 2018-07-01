@@ -13,7 +13,6 @@ function grabbing_parser($grabbing_array) {
     $user_info = get_userdata($grabbing_array['userID']);
     $username = $user_info->first_name . " " . $user_info->last_name;
     $grabbing_array['username'] = $username;
-    unset($grabbing_array['userID']);
     return $grabbing_array;
 }
 
