@@ -63,6 +63,7 @@ function delete_comment($request) {
         return;
     }
     $comment_id = $request['id'];
+    
     if(is__user_logged_in()){
         global $wpdb;
         $query = $wpdb->prepare(
@@ -76,6 +77,44 @@ function delete_comment($request) {
     }
     $response->set_status(404);
     return $response;
+}
+
+function delete_comment_by_ID($comment_id, $parent_grabbing_id) {
+
+    // Get all child comment IDs.
+    global $wpdb;
+    $child_query = $wpdb->prepare(
+        "SELECT comment_ID
+        FROM inku_kaehmy_has_comment
+        WHERE parent_grabbing_ID=%d
+        AND parent_comment_ID=%d",
+        $parent_grabbing_id, $comment_id
+    );
+    $child_ids = $wpdb->get_col($child_query);
+
+    // Call this function for all child comments.
+    foreach($child_ids as &$child_id){
+        delete_comment_by_ID($child_id, $parent_grabbing_id);
+    }
+
+    // remove has_comment entry with given grabbing_id and comment_id
+    $hc_query = $wpdb->prepare(
+        "DELETE
+        FROM inku_kaehmy_has_comment
+        WHERE comment_ID=%d
+        AND parent_grabbing_ID=%d",
+        $comment_id, $parent_grabbing_id
+    );
+    $wpdb->query($hc_query);
+
+    // Delete comment with given comment_id
+    $query = $wpdb->prepare(
+        "DELETE
+        FROM inku_kaehmy_comment
+        WHERE ID=%d;",
+        $comment_id
+    );
+    $wpdb->query($query);
 }
 
 function delete_grabbing($request) {
@@ -145,7 +184,7 @@ function post_comment($request){
     $response = new WP_REST_response();
     global $wpdb;
 
-    $nonce = $request['_wpnonce'];
+//     $nonce = $request['_wpnonce'];
 
     if(! wp_verify_nonce($nonce, 'post_comment')){
         $response->set_status(418);
@@ -238,7 +277,7 @@ function put_comment($request){
 
 
 function test() {
-    return get_all_tags();
+    delete_comment_by_ID(5,4);
 }
 
 ?>
