@@ -49,7 +49,7 @@ function get_grabbing($request) {
         WHERE ID=%d;",
         $grabbing_ID
     );
-    $grabbing = $wpdb->get_row($query);
+    $grabbing = $wpdb->get_row($query, ARRAY_A);
     $grabbing = grabbing_parser($grabbing);
     return $grabbing;
 }
