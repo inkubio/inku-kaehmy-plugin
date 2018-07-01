@@ -65,8 +65,42 @@ class Inku_Kaehmy_Plugin {
       'methods' => 'DELETE',
       'callback' => 'delete_grabbing',
       'args' => array('id'),
+      
       )
     );
+    /*POST methods*/
+    
+    register_rest_route('inku-kaehmy/v1', '/grabbings', 
+    array(
+      'methods' => 'POST',
+      'callback' => 'post_grabbing',
+      )
+    );
+
+    register_rest_route('inku-kaehmy/v1', '/comments', 
+    array(
+      'methods' => 'POST',
+      'callback' => 'post_grabbing',
+      )
+    );
+
+    /*PUT methods*/
+    register_rest_route('inku-kaehmy/v1', '/comment/(\P<id>\d+', 
+    array(
+      'methods' => 'PUT',
+      'callback' => 'put_comment',
+      'args' => array('id'),
+      )
+    );
+    register_rest_route('inku-kaehmy/v1', '/grabbing/(\P<id>\d+', 
+    array(
+      'methods' => 'PUT',
+      'callback' => 'put_grabbing',
+      'args' => array('id'),
+      )
+    );
+    
+    
 
   
   }
