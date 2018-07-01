@@ -68,6 +68,7 @@ function delete_comment($request) {
         return http_response_code(418);
     }
     $comment_id = $request['id'];
+    
     if(is__user_logged_in()){
         global $wpdb;
         $query = $wpdb->prepare(
@@ -79,6 +80,44 @@ function delete_comment($request) {
         $wpdb->query($query);
         return http_response_code(200);
     }
+}
+
+function delete_comment_by_ID($comment_id, $parent_grabbing_id) {
+
+    // Get all child comment IDs.
+    global $wpdb;
+    $child_query = $wpdb->prepare(
+        "SELECT comment_ID
+        FROM inku_kaehmy_has_comment
+        WHERE parent_grabbing_ID=%d
+        AND parent_comment_ID=%d",
+        $parent_grabbing_id, $comment_id
+    );
+    $child_ids = $wpdb->get_col($child_query);
+
+    // Call this function for all child comments.
+    foreach($child_ids as &$child_id){
+        delete_comment_by_ID($child_id, $parent_grabbing_id);
+    }
+
+    // remove has_comment entry with given grabbing_id and comment_id
+    $hc_query = $wpdb->prepare(
+        "DELETE
+        FROM inku_kaehmy_has_comment
+        WHERE comment_ID=%d
+        AND parent_grabbing_ID=%d",
+        $comment_id, $parent_grabbing_id
+    );
+    $wpdb->query($hc_query);
+
+    // Delete comment with given comment_id
+    $query = $wpdb->prepare(
+        "DELETE
+        FROM inku_kaehmy_comment
+        WHERE ID=%d;",
+        $comment_id
+    );
+    $wpdb->query($query);
 }
 
 function delete_grabbing($request) {
@@ -127,27 +166,27 @@ function post_grabbing($request){
     return http_response_code(501);
 }
 
-function get_grabbing_comments($request){
-    global $wpdb;
+// function get_grabbing_comments($request){
+//     global $wpdb;
 
-    $nonce = $request['_wpnonce'];
+//     $nonce = $request['_wpnonce'];
 
-    if(! wp_verify_nonce($nonce, 'delete_comment')){
-        exit;
-    }
-    $comment_id = $request['id'];
-    if(is__user_logged_in()){
-        $comment_text = $request['text'];
-        $comment_title = $request['title'];
-        $parent_id = $request['parent-id'];
-        global $wpdb;
-        // $query = $wpdb->prepare(
+//     if(! wp_verify_nonce($nonce, 'delete_comment')){
+//         exit;
+//     }
+//     $comment_id = $request['id'];
+//     if(is__user_logged_in()){
+//         $comment_text = $request['text'];
+//         $comment_title = $request['title'];
+//         $parent_id = $request['parent-id'];
+//         global $wpdb;
+//         // $query = $wpdb->prepare(
 
-        // );
-        // $wpdb->query($query);
-        return http_response_code(501);
-    }
-}
+//         // );
+//         // $wpdb->query($query);
+//         return http_response_code(501);
+//     }
+// }
 
 /*-------------------------PUTs-----------------------*/
 function put_grabbing($request) {
@@ -173,7 +212,7 @@ function put_grabbing($request) {
 }
 
 function test() {
-    return get_all_tags();
+    delete_comment_by_ID(5,4);
 }
 
 ?>
