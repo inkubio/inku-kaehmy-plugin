@@ -85,14 +85,14 @@ class Inku_Kaehmy_Plugin {
     );
 
     /*PUT methods*/
-    register_rest_route('inku-kaehmy/v1', '/comment/(\P<id>\d+', 
+    register_rest_route('inku-kaehmy/v1', '/comment/(?P<id>\d+)', 
     array(
       'methods' => 'PUT',
       'callback' => 'put_comment',
       'args' => array('id'),
       )
     );
-    register_rest_route('inku-kaehmy/v1', '/grabbing/(\P<id>\d+', 
+    register_rest_route('inku-kaehmy/v1', '/grabbing/(?P<id>\d+)', 
     array(
       'methods' => 'PUT',
       'callback' => 'put_grabbing',
