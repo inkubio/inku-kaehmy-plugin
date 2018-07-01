@@ -3,12 +3,40 @@
 //Useful link
 //https://stackoverflow.com/questions/41362277/wp-rest-api-custom-end-point-post-request
 //https://stackoverflow.com/questions/44189832/wordpress-rest-api-custom-endpoint-for-method-post
+
+
+function grabbing_parser($grabbing_array) {
+    $grabbing_array = change_array_key($grabbing_array,'grabbing_text','text');
+    $grabbing_array = change_array_key($grabbing_array,'grabbing_title','title');
+    $grabbing_array = change_array_key($grabbing_array,'grabbing_batch','batch');
+    $grabbing_array = change_array_key($grabbing_array,'time_stamp','timestamp');
+    $user_info = get_userdata($grabbing_array['userID']);
+    $username = $user_info->first_name . " " . $user_info->last_name;
+    $grabbing_array['username'] = $username;
+    unset($grabbing_array['userID']);
+    return $grabbing_array;
+}
+
+function change_array_key($array, $old_key, $new_key) {
+
+    if (!array_key_exists($old_key, $array))
+        return $array;
+    
+    $array[$new_key] = $array[$old_key];
+    unset($array[$old_key]);
+
+    return $array;
+}
+
 /*------------------GETs---------------------------*/
 function get_all_grabbings() {
     // Returns all grabbings in the database
     global $wpdb;
     $query = "SELECT * FROM inku_kaehmy_grabbing;";
     $grabbings = $wpdb->get_results($query, ARRAY_A);
+    foreach($grabbings as &$grabbing) {
+        $grabbing = grabbing_parser($grabbing);
+    }
     return $grabbings;
 }
 
@@ -23,6 +51,7 @@ function get_grabbing($request) {
         $grabbing_ID
     );
     $grabbing = $wpdb->get_row($query);
+    $grabbing = grabbing_parser($grabbing);
     return $grabbing;
 }
 
@@ -132,6 +161,17 @@ function delete_grabbing($request) {
 
     if(is__user_logged_in()){
         global $wpdb;
+        // $hc_query = $wpdb-> prepare(
+        //     "SELECT comment_ID
+        //     FROM inku_kaehmy_has_comment
+        //     WHERE parent_grabbing_id=%d",
+        //     $grabbing_ID
+        // );
+        // $comment_ids = $wpdb->get_col($hc_query);
+        // foreach($comment_ids as &$comment){
+
+        // }
+
         $query = $wpdb->prepare(
             "DELETE
             FROM inku_kaehmy_grabbing
