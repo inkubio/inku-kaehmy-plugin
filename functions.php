@@ -1,4 +1,8 @@
 <?php
+//TODO: sanitize_key() <- Add this
+//Useful link
+//https://stackoverflow.com/questions/41362277/wp-rest-api-custom-end-point-post-request
+//https://stackoverflow.com/questions/44189832/wordpress-rest-api-custom-endpoint-for-method-post
 /*------------------GETs---------------------------*/
 function get_all_grabbings() {
     // Returns all grabbings in the database
@@ -61,7 +65,7 @@ function delete_comment($request) {
     $nonce = $request['_wpnonce'];
 
     if(! wp_verify_nonce($nonce, 'delete_comment')){
-        exit;
+        return http_response_code(418);
     }
     $comment_id = $request['id'];
     if(is__user_logged_in()){
@@ -82,7 +86,7 @@ function delete_grabbing($request) {
     $nonce = $request['_wpnonce'];
 
     if(! wp_verify_nonce($nonce, 'delete_comment')){
-        exit;
+        return http_response_code(418);
     }
 
     if(is__user_logged_in()){
