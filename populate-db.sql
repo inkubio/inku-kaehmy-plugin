@@ -30,8 +30,8 @@ VALUES ('Siltojen polttaminen');
 
 -- Grabbings
 
-INSERT INTO inku_kaehmy_grabbing (userID, is_hallitus, grabbing_text, grabbing_title, time_stamp, grabbing_batch)
-VALUES (100,1,'Me is good at cooking (read: drinking) so i want to be the hostess','My liver has had an easy life thus far.', '18-10-27 10:30:09 PM', 'Syksy 2018');
+INSERT INTO inku_kaehmy_grabbing (userID, is_hallitus, grabbing_text, grabbing_title, grabbing_batch)
+VALUES (100,1,'Me is good at cooking (read: drinking) so i want to be the hostess','My liver has had an easy life thus far.','Syksy 2018');
 
 INSERT INTO inku_kaehmy_grabbing (userID, is_hallitus, grabbing_text, grabbing_title, time_stamp, grabbing_batch)
 VALUES (99,1,'As the treasurer I will steal all of our money','My student allowances ran out', '18-10-23 11:59:09 PM', 'Syksy 2018');

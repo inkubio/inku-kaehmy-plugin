@@ -62,6 +62,10 @@ function get_grabbing_comments($request){
 /*---------------------DELETEs----------------------*/ 
 function delete_comment($request) {
 
+    // Should be changed to parse commentID and parentID from
+    // request and the call delete_comment_by_ID with commentID
+    // and parent_grabbing_ID
+
     $nonce = $request['_wpnonce'];
 
     if(! wp_verify_nonce($nonce, 'delete_comment')){
@@ -90,7 +94,7 @@ function delete_comment_by_ID($comment_id, $parent_grabbing_id) {
         "SELECT comment_ID
         FROM inku_kaehmy_has_comment
         WHERE parent_grabbing_ID=%d
-        AND parent_comment_ID=%d",
+        AND parent_comment_ID=%d;",
         $parent_grabbing_id, $comment_id
     );
     $child_ids = $wpdb->get_col($child_query);
@@ -105,7 +109,7 @@ function delete_comment_by_ID($comment_id, $parent_grabbing_id) {
         "DELETE
         FROM inku_kaehmy_has_comment
         WHERE comment_ID=%d
-        AND parent_grabbing_ID=%d",
+        AND parent_grabbing_ID=%d;",
         $comment_id, $parent_grabbing_id
     );
     $wpdb->query($hc_query);
@@ -152,15 +156,23 @@ function post_grabbing($request){
     }
 
     if(is__user_logged_in()){
-        $is_hallitus = $request['gov'];
+        $is_hallitus = $request['board'];
         $grabbing_text = $request['text'];
         $grabbing_title = $request['title'];
-        $grabbing_patch = $request['patch'];
+        $grabbing_batch = $request['batch'];
+        if (empty($is_hallitus) or empty($grabbing_text) or 
+        empty($grabbing_title) or empty($grabbing_batch)) {
+            return http_response_code(400);
+        }
         global $wpdb;
-        // $query = $wpdb->prepare(
-        //     "QUERY"
-        // );
-        // $wpdb->query($query);
+        $user_id = get_current_user_id();
+        $query = $wpdb->prepare(
+            "INSERT INTO inku_kaehmy_grabbing (userID, is_hallitus, 
+            grabbing_text, grabbing_title, time_stamp, grabbing_batch)
+            VALUES (%d, %d, '%s', '%s', '%s');",
+            $user_id, $is_hallitus, $grabbing_text, $grabbing_title, $grabbing_batch
+        );
+        $wpdb->query($query);
         return http_response_code(501);
     }
     return http_response_code(501);
@@ -200,7 +212,7 @@ function put_grabbing($request) {
     if(is__user_logged_in()){
         $grabbing_text = $request['text'];
         $grabbing_title = $request['title'];
-        $grabbing_patch = $request['patch'];
+        $grabbing_batch = $request['batch'];
         global $wpdb;
 
         // $query = $wpdb->prepare(
@@ -212,7 +224,7 @@ function put_grabbing($request) {
 }
 
 function test() {
-    delete_comment_by_ID(5,4);
+    return get_all_tags();
 }
 
 ?>

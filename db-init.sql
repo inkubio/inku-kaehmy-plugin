@@ -10,7 +10,7 @@ CREATE TABLE inku_kaehmy_grabbing (
     is_hallitus TINYINT NOT NULL,
     grabbing_text VARCHAR(65000) NOT NULL,
     grabbing_title VARCHAR(100) NOT NULL,
-    time_stamp DATETIME NOT NULL,
+    time_stamp DATETIME DEFAULT CURRENT_TIMESTAMP,
     grabbing_batch VARCHAR(100),
     PRIMARY KEY (ID)
 );
@@ -19,7 +19,7 @@ CREATE TABLE inku_kaehmy_comment (
     ID INT NOT NULL AUTO_INCREMENT,
     userID INT NOT NULL,
     comment_text VARCHAR(65000) NOT NULL,
-    time_stamp DATETIME NOT NULL,
+    time_stamp DATETIME DEFAULT CURRENT_TIMESTAMP,
     depth INT NOT NULL,
     PRIMARY KEY (ID)
 );
