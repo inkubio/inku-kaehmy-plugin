@@ -37,7 +37,7 @@ INSERT INTO inku_kaehmy_grabbing (userID, is_hallitus, grabbing_text, grabbing_t
 VALUES (99,1,'As the treasurer I will steal all of our money','My student allowances ran out', '18-10-23 11:59:09', 'Syksy 2018');
 
 INSERT INTO inku_kaehmy_grabbing (userID, is_hallitus, grabbing_text, grabbing_title, time_stamp, grabbing_batch)
-VALUES (23,1,'As the chairperson I will beat every board member with a baseball bat until they cry.', 'Violence solves everything','18-10-22 05:02:04', 'Syksy 2018');
+VALUES (23,1,'As the chairperson I will beat every board member with a chair until they cry.', 'Violence solves everything','18-10-22 05:02:04', 'Syksy 2018');
 
 INSERT INTO inku_kaehmy_grabbing (userID, is_hallitus, grabbing_text, grabbing_title, time_stamp, grabbing_batch)
 VALUES (102,0,'I really don''t like to do anything therefore I fit to this position perfectly', 'Songbookofficial','18-09-22 11:59:22', 'Syksy 2018');
