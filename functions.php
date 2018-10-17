@@ -16,6 +16,15 @@ function grabbing_parser($grabbing_array) {
     return $grabbing_array;
 }
 
+function comment_parser($comment_array) {
+    $comment_array = change_array_key($comment_array, 'time_stamp', 'timestamp');
+    $comment_array = change_array_key($comment_array,'comment_text','text');
+    $user_info = get_userdata($comment_array['userID']);
+    $username = $user_info->first_name . " " . $user_info->last_name;
+    $comment_array['username'] = $username;
+    return $comment_array;
+}
+
 function change_array_key($array, $old_key, $new_key) {
 
     if (!array_key_exists($old_key, $array))
@@ -73,9 +82,12 @@ function get_grabbing_comments($request){
         ", $grabbing_ID);
 
 
-    $res = $wpdb->get_results($query, ARRAY_A);
+    $comments = $wpdb->get_results($query, ARRAY_A);
 
-    return $res;
+    foreach($comments as &$comment) {
+        $comment = comment_parser($comment);
+    }
+    return $comments;
 }
 
 /*---------------------DELETEs----------------------*/ 
@@ -200,7 +212,7 @@ function post_grabbing($request){
     }
 
     if(is__user_logged_in()){
-        $is_hallitus = $request['board'];
+        $is_hallitus = $request['is_hallitus'];
         $grabbing_text = $request['text'];
         $grabbing_title = $request['title'];
         $grabbing_batch = $request['batch'];
