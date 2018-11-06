@@ -13,6 +13,7 @@ function grabbing_parser($grabbing_array) {
     $user_info = get_userdata($grabbing_array['userID']);
     $username = $user_info->first_name . " " . $user_info->last_name;
     $grabbing_array['username'] = $username;
+    $grabbing_array['is_hallitus'] = boolval($grabbing_array['is_hallitus']);
     return $grabbing_array;
 }
 
@@ -71,24 +72,53 @@ function get_all_tags() {
     return $res;
 }
 
+function get_subcomments($parent_id) {
+    global $wpdb;
+    $query = $wpdb->prepare(
+        "SELECT c.ID, c.userID, c.comment_text, c.time_stamp, c.depth
+        FROM inku_kaehmy_comment AS c, inku_kaehmy_has_comment AS h
+        WHERE c.ID = h.comment_ID
+        AND h.parent_comment_ID IS NOT NULL
+        AND h.parent_comment_ID = %d",
+        $parent_id
+    );
+    $comments = $wpdb->get_results($query, ARRAY_A);
+    foreach($comments as &$comment) {
+        $comment = comment_parser($comment);
+        $comment['comments'] = get_subcomments($comment['ID']);
+    }
+    return $comments;
+}
+
 function get_grabbing_comments($request){
     global $wpdb;
 
     $grabbing_ID = (int)$request['id'];
-    //return $request->get_params();
     $query = $wpdb->prepare(
-        "SELECT * FROM inku_kaehmy_comment WHERE ID IN 
-        (SELECT comment_ID FROM inku_kaehmy_has_comment WHERE parent_grabbing_ID = %d)
-        ", $grabbing_ID);
-
-
+         "SELECT * FROM inku_kaehmy_comment WHERE ID IN 
+            (SELECT comment_ID
+            FROM inku_kaehmy_has_comment
+            WHERE parent_grabbing_ID = %d AND parent_comment_ID IS NULL)",
+         $grabbing_ID
+     );
     $comments = $wpdb->get_results($query, ARRAY_A);
 
     foreach($comments as &$comment) {
         $comment = comment_parser($comment);
+        $comment['comments'] = get_subcomments($comment['ID']);
     }
     return $comments;
 }
+
+function get_logged_in_user_id($request) {
+    $response = new WP_REST_response();
+    if (is_user_logged_in()) {
+        $response->set_data(get_current_user_id());
+        return $response;
+    }
+    return -1;
+}
+
 
 /*---------------------DELETEs----------------------*/ 
 function delete_comment($request) {
@@ -106,7 +136,7 @@ function delete_comment($request) {
     }
     $comment_id = $request['id'];
     
-    if(is__user_logged_in()){
+    if(is_user_logged_in()){
         global $wpdb;
         $query = $wpdb->prepare(
             "DELETE
@@ -204,32 +234,47 @@ function post_grabbing($request){
 
     $response = new WP_REST_response();
 
-    $nonce = $request['_wpnonce'];
-
+    $nonce = $request->get_header('X-WP-Nonce');
+/*
     if(! wp_verify_nonce($nonce, 'post_grabbing')){
         $response->set_status(418);
         return $response;
     }
-
-    if(is__user_logged_in()){
-        $is_hallitus = $request['is_hallitus'];
-        $grabbing_text = $request['text'];
-        $grabbing_title = $request['title'];
-        $grabbing_batch = $request['batch'];
-        if (empty($is_hallitus) or empty($grabbing_text) or 
-        empty($grabbing_title) or empty($grabbing_batch)) {
-            return http_response_code(400);
+*/
+    if(! (current_user_can('administrator') || current_user_can('subscriber'))){
+        $response->set_status(418);
+        $response->set_data(get_current_user_id());
+        return $response;
+    }
+    
+    try {
+        if(is_user_logged_in()){
+            $is_hallitus = $request['is_hallitus'];
+            $grabbing_text = $request['text'];
+            $grabbing_title = $request['title'];
+            $grabbing_batch = $request['batch'];
+            if (empty($grabbing_text) or 
+            empty($grabbing_title) or empty($grabbing_batch)) {
+                $response->set_data('ei vittu nyt');
+                $response->set_status(401);
+                return $response;
+            }
+            global $wpdb;
+            $user_id = get_current_user_id();
+            $query = $wpdb->prepare(
+                "INSERT INTO inku_kaehmy_grabbing (userID, is_hallitus, 
+                grabbing_text, grabbing_title, grabbing_batch)
+                VALUES (%d, %d, '%s', '%s', '%s');",
+                $user_id, $is_hallitus, $grabbing_text, $grabbing_title, $grabbing_batch
+            );
+            $wpdb->query($query);
+            $response->set_status(201);
+            return $response;
         }
-        global $wpdb;
-        $user_id = get_current_user_id();
-        $query = $wpdb->prepare(
-            "INSERT INTO inku_kaehmy_grabbing (userID, is_hallitus, 
-            grabbing_text, grabbing_title, time_stamp, grabbing_batch)
-            VALUES (%d, %d, '%s', '%s', '%s');",
-            $user_id, $is_hallitus, $grabbing_text, $grabbing_title, $grabbing_batch
-        );
-        $wpdb->query($query);
-        return http_response_code(501);
+    } catch (Exception $e) {
+        $response->set_status(500);
+        $response->set_date($e->getMessage());
+        return $response;
     }
     $response->set_status(401);
     return $response;
@@ -242,26 +287,45 @@ function post_comment($request){
     $response = new WP_REST_response();
     global $wpdb;
 
-//     $nonce = $request['_wpnonce'];
-
-    if(! wp_verify_nonce($nonce, 'post_comment')){
+    if(! (current_user_can('administrator') || current_user_can('subscriber'))){
         $response->set_status(418);
+        $response->set_data(get_current_user_id());
         return $response;
     }
 
     $params = $request->get_params();
 
-    $comment_id = $request['id'];
     if(is_user_logged_in()){
         $comment_text = $request['text'];
-        $comment_title = $request['title'];
-        $parent_id = $request['parent-id'];
-        global $wpdb;
-        // $query = $wpdb->prepare(
+        $parent_grabbing_id = $request['parent_grabbing_id'];
+        $parent_comment_id = $request['parent_comment_id'];
+        $user_id = get_current_user_id();
 
-        // );
-        // $wpdb->query($query);
-        $response->set_status(200);
+        global $wpdb;
+        $query = $wpdb->prepare(
+                "INSERT INTO inku_kaehmy_comment (userID, comment_text, depth)
+                VALUES (%d, '%s', %d);",
+                $user_id, $comment_text, 0
+        );
+        $wpdb->query($query);
+        
+        $comment_id = $wpdb->get_var("SELECT LAST_INSERT_ID();");
+        if ($parent_comment_id) {
+            $query = $wpdb->prepare(
+                "INSERT INTO (comment_ID, parent_grabbing_ID, parent_comment_ID)
+                VALUES (%d, %d, %d);",
+                $comment_id, $parent_grabbing_id, $parent_comment_id
+            );
+        } else {
+            $query = $wpdb->prepare(
+                "INSERT INTO (comment_ID, parent_grabbing_ID)
+                VALUES (%d, %d);",
+                $comment_id, $parent_grabbing_id
+            );
+        }
+        $wpdb->query($query);
+
+        $response->set_status(201);
         return $response;
     }
     $response->set_status(401);

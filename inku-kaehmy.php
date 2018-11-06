@@ -63,6 +63,13 @@ class Inku_Kaehmy_Plugin {
       )
     );
 
+    register_rest_route('inku-kaehmy/v1', '/me', 
+    array(
+      'methods' => 'GET',
+      'callback' => 'get_logged_in_user_id',
+      )
+    );
+
 
     /*DELETE methods */
     register_rest_route('inku-kaehmy/v1', '/comment/(?P<id>\d+)', 
@@ -93,7 +100,7 @@ class Inku_Kaehmy_Plugin {
     register_rest_route('inku-kaehmy/v1', '/comments', 
     array(
       'methods' => 'POST',
-      'callback' => 'post_grabbing',
+      'callback' => 'post_comment',
       )
     );
 
