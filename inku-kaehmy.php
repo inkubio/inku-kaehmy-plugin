@@ -104,6 +104,13 @@ class Inku_Kaehmy_Plugin {
       )
     );
 
+    register_rest_route('inku-kaehmy/v1', '/me', 
+    array(
+      'methods' => 'POST',
+      'callback' => 'get_logged_in_user_id',
+      )
+    );
+
     /*PUT methods*/
     register_rest_route('inku-kaehmy/v1', '/comment/(?P<id>\d+)', 
     array(
@@ -119,10 +126,6 @@ class Inku_Kaehmy_Plugin {
       'args' => array('id'),
       )
     );
-    
-    
-
-  
   }
 
   /*

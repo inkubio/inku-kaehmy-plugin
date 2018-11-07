@@ -14,6 +14,7 @@ function grabbing_parser($grabbing_array) {
     $username = $user_info->first_name . " " . $user_info->last_name;
     $grabbing_array['username'] = $username;
     $grabbing_array['is_hallitus'] = boolval($grabbing_array['is_hallitus']);
+    $grabbing_array['userID'] = intval($grabbing_array['userID']);
     return $grabbing_array;
 }
 
@@ -23,6 +24,7 @@ function comment_parser($comment_array) {
     $user_info = get_userdata($comment_array['userID']);
     $username = $user_info->first_name . " " . $user_info->last_name;
     $comment_array['username'] = $username;
+    $comment_array['userID'] = intval($comment_array['userID']);
     return $comment_array;
 }
 
@@ -114,6 +116,7 @@ function get_logged_in_user_id($request) {
     $response = new WP_REST_response();
     if (is_user_logged_in()) {
         $response->set_data(get_current_user_id());
+        $response->set_status(200);
         return $response;
     }
     return -1;
@@ -273,7 +276,7 @@ function post_grabbing($request){
         }
     } catch (Exception $e) {
         $response->set_status(500);
-        $response->set_date($e->getMessage());
+        $response->set_data($e->getMessage());
         return $response;
     }
     $response->set_status(401);
@@ -293,8 +296,6 @@ function post_comment($request){
         return $response;
     }
 
-    $params = $request->get_params();
-
     if(is_user_logged_in()){
         $comment_text = $request['text'];
         $parent_grabbing_id = $request['parent_grabbing_id'];
@@ -312,13 +313,15 @@ function post_comment($request){
         $comment_id = $wpdb->get_var("SELECT LAST_INSERT_ID();");
         if ($parent_comment_id) {
             $query = $wpdb->prepare(
-                "INSERT INTO (comment_ID, parent_grabbing_ID, parent_comment_ID)
+                "INSERT INTO inku_kaehmy_has_comment
+                    (comment_ID, parent_grabbing_ID, parent_comment_ID)
                 VALUES (%d, %d, %d);",
                 $comment_id, $parent_grabbing_id, $parent_comment_id
             );
         } else {
             $query = $wpdb->prepare(
-                "INSERT INTO (comment_ID, parent_grabbing_ID)
+                "INSERT INTO inku_kaehmy_has_comment
+                    (comment_ID, parent_grabbing_ID)
                 VALUES (%d, %d);",
                 $comment_id, $parent_grabbing_id
             );
@@ -336,29 +339,36 @@ function post_comment($request){
 function put_grabbing($request) {
     
     $response = new WP_REST_response();
+    global $wpdb;
 
-    $nonce = $request['_wpnonce'];
-
-
-    if(! wp_verify_nonce($nonce, 'put_crabbing')){
+    if(! (current_user_can('administrator') || current_user_can('subscriber'))){
         $response->set_status(418);
+        $response->set_data(get_current_user_id());
         return $response;
     }
-
-    $params = $request->get_params();
-
-    $comment_id = $request['id'];
-    if(is_user_logged_in()){
-        $grabbing_text = $request['text'];
-        $grabbing_title = $request['title'];
-        $grabbing_batch = $request['batch'];
-        global $wpdb;
-
-        // $query = $wpdb->prepare(
-
-        // );
-        // $wpdb->query($query);
-        $response->set_status(200);
+    try {
+        if(is_user_logged_in()){
+            $grabbing_text = $request['text'];
+            $grabbing_title = $request['title'];
+            $is_hallitus = $request['is_hallitus'];
+            $user_id = get_current_user_id();
+            $query = $wpdb->prepare(
+                "UPDATE inku_kaehmy_grabbing
+                SET grabbing_title='%s',
+                    grabbing_text='%s',
+                    is_hallitus=%d
+                WHERE ID=%d AND userID=%d",
+                $grabbing_title, $grabbing_text, $is_hallitus,
+                (int)$request['id'], $user_id
+            );
+            $wpdb->query($query);
+            $response->set_status(200);
+            $response->set_data("nice");
+            return $response;
+        }
+    } catch (Exception $e) {
+        $response->set_status(500);
+        $response->set_data($e->getMessage());
         return $response;
     }
     $response->set_status(401);
@@ -366,30 +376,32 @@ function put_grabbing($request) {
 }
 
 function put_comment($request){
-    
     $response = new WP_REST_response();
+    global $wpdb;
 
-    $nonce = $request['_wpnonce'];
-
-    if(! wp_verify_nonce($nonce, 'put_comment')){
+    if(! (current_user_can('administrator') || current_user_can('subscriber'))){
         $response->set_status(418);
+        $response->set_data(get_current_user_id());
         return $response;
     }
-    $comment_id = $request['id'];
-    
-    $params = $request->get_params();
-
-    if(is_user_logged_in()){
-        $grabbing_text = $request['text'];
-        $grabbing_title = $request['title'];
-        $grabbing_patch = $request['patch'];
-        global $wpdb;
-
-        // $query = $wpdb->prepare(
-
-        // );
-        // $wpdb->query($query);
-        $response->set_status(200);
+    try {
+        if(is_user_logged_in()){
+            $comment_text = $request['text'];
+            $user_id = get_current_user_id();
+            $query = $wpdb->prepare(
+                "UPDATE inku_kaehmy_comment
+                SET comment_text='%s'
+                WHERE ID=%d AND userID=%d",
+                $comment_text, (int)$request['id'], $user_id
+            );
+            $wpdb->query($query);
+            $response->set_status(200);
+            $response->set_data("nice");
+            return $response;
+        }
+    } catch (Exception $e) {
+        $response->set_status(500);
+        $response->set_data($e->getMessage());
         return $response;
     }
     $response->set_status(401);
