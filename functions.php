@@ -112,6 +112,25 @@ function get_grabbing_comments($request){
     return $comments;
 }
 
+function raw_comments($request){
+    global $wpdb;
+
+    $grabbing_ID = (int)$request['id'];
+    $query = $wpdb->prepare(
+         "SELECT * FROM inku_kaehmy_comment WHERE ID IN 
+            (SELECT comment_ID
+            FROM inku_kaehmy_has_comment
+            WHERE parent_grabbing_ID = %d)",
+         $grabbing_ID
+     );
+    $comments = $wpdb->get_results($query, ARRAY_A);
+
+    foreach($comments as &$comment) {
+        $comment = comment_parser($comment);
+    }
+    return $comments;
+}
+
 function get_logged_in_user_id($request) {
     $response = new WP_REST_response();
     if (is_user_logged_in()) {

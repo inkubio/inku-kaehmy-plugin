@@ -63,6 +63,14 @@ class Inku_Kaehmy_Plugin {
       )
     );
 
+    register_rest_route('inku-kaehmy/v1', '/grabbing/(?P<id>\d+)/rawcomments', 
+    array(
+      'methods' => 'GET',
+      'callback' => 'raw_comments',
+      'args' => array('id'),
+      )
+    );
+
     register_rest_route('inku-kaehmy/v1', '/me', 
     array(
       'methods' => 'GET',
